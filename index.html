@@ -10,28 +10,838 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>Groundwork</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="exercises.js"></script>
 <style>
 :root {
-  --brand:#C8A84B; --brand-dim:rgba(200,168,75,0.12); --gold:#C8A84B; --gold-dim:rgba(200,168,75,0.12);
-  --green:#6B8F5E; --green-dim:rgba(107,143,94,0.15); --blue:#5B7FA6; --blue-dim:rgba(91,127,166,0.15);
-  --purple:#7C5CBF; --red:#A63228; --bg:#111210; --s1:#161714; --s2:#1C1D1A; --s3:#222320; --s4:#2C2D29;
-  --border:rgba(255,255,255,0.08); --border-hi:rgba(200,168,75,0.3); --t1:#E8E4DC; --t2:#8A8880; --t3:#505048;
-  --r-sm:4px; --r-md:8px; --r-lg:12px; --r-xl:14px; --pad:16px;
-  --safe-top:env(safe-area-inset-top,44px); --safe-bot:env(safe-area-inset-bottom,20px);
+  --brand: #C8A84B; --brand-dim: rgba(200,168,75,0.12);
+  --gold: #C8A84B; --gold-dim: rgba(200,168,75,0.12);
+  --green: #6B8F5E; --green-dim: rgba(107,143,94,0.15);
+  --blue: #5B7FA6; --blue-dim: rgba(91,127,166,0.15);
+  --purple: #7C5CBF; --red: #A63228;
+  --bg: #111210; --s1: #161714; --s2: #1C1D1A; --s3: #222320; --s4: #2C2D29;
+  --border: rgba(255,255,255,0.08); --border-hi: rgba(200,168,75,0.3);
+  --t1: #E8E4DC; --t2: #8A8880; --t3: #505048;
+  --r-sm: 4px; --r-md: 8px; --r-lg: 12px; --r-xl: 14px; --pad: 16px;
+  --safe-top: env(safe-area-inset-top,44px); --safe-bot: env(safe-area-inset-bottom,20px);
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
 html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:'Barlow',sans-serif;color:var(--t1)}
+#app{width:100%;height:100%;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.screens{flex:1;position:relative;overflow:hidden}
+.screen{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;opacity:0;pointer-events:none;transition:opacity 0.25s ease;padding-top:var(--safe-top);padding-bottom:80px}
+.screen::-webkit-scrollbar{display:none}
+.screen.active{opacity:1;pointer-events:all}
+.bnav{display:flex;background:var(--s1);border-top:1px solid var(--border);padding-bottom:var(--safe-bot);flex-shrink:0;position:relative;z-index:10}
+.bni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 0;cursor:pointer;transition:opacity 0.15s;user-select:none}
+.bni:active{opacity:0.6}
+.bni-abbr{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--t3);transition:color 0.2s}
+.bni-label{font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);transition:color 0.2s}
+.bni.on .bni-abbr,.bni.on .bni-label{color:var(--brand)}
+.overlay{position:absolute;inset:0;background:var(--bg);z-index:50;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;opacity:0;pointer-events:none;transform:translateX(100%);transition:opacity 0.25s ease,transform 0.28s ease;padding-top:var(--safe-top);padding-bottom:40px}
+.overlay::-webkit-scrollbar{display:none}
+.overlay.open{opacity:1;pointer-events:all;transform:translateX(0)}
+#onboarding{position:absolute;inset:0;z-index:100;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;background:var(--bg);padding-top:var(--safe-top);padding-bottom:40px;transition:opacity 0.4s ease}
+#onboarding::-webkit-scrollbar{display:none}
+#onboarding.gone{opacity:0;pointer-events:none}
+.bc{font-family:'Barlow Condensed',sans-serif}
+.eyebrow{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.eyebrow::before{content:'';width:18px;height:1px;background:currentColor;opacity:0.7;flex-shrink:0}
+.pad{padding:0 var(--pad)}.gap-sm{height:10px}.gap-md{height:16px}.gap-lg{height:24px}
+.scr-head{padding:14px var(--pad) 8px;display:flex;justify-content:space-between;align-items:center}
+.scr-title{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--t1)}
+.sect-head{padding:16px var(--pad) 8px;display:flex;justify-content:space-between;align-items:baseline}
+.sect-title{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:var(--t2);display:flex;align-items:center;gap:8px}
+.sect-title::before{content:'';width:16px;height:1px;background:var(--brand)}
+.sect-link{font-size:12px;font-weight:600;color:var(--brand);cursor:pointer}
+.pill{display:inline-block;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:4px 12px;border-radius:100px;background:var(--brand);color:#111210}
+.pill.green{background:var(--green);color:var(--t1)}.pill.blue{background:var(--blue);color:var(--t1)}
+.pill.outline{background:transparent;border:1px solid var(--border-hi);color:var(--brand)}
+.card{background:var(--s2);border:1px solid var(--border);border-radius:var(--r-xl)}
+.card.brand-border{border-color:rgba(200,168,75,0.3)}
+.btn-primary{display:block;width:100%;background:var(--brand);color:#111210;border:none;border-radius:var(--r-sm);padding:17px;font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;letter-spacing:3px;text-transform:uppercase;cursor:pointer;transition:opacity 0.15s}
+.btn-primary:active{opacity:0.8}
+.btn-blue{display:block;width:100%;background:var(--blue);color:var(--t1);border:none;border-radius:var(--r-sm);padding:16px;font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:800;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:opacity 0.15s}
+.btn-blue:active{opacity:0.8}
+.btn-danger{display:block;width:100%;background:var(--red);color:var(--t1);border:none;border-radius:var(--r-sm);padding:16px;font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:800;letter-spacing:2px;text-transform:uppercase;cursor:pointer}
+/* ONBOARDING */
+.ob-hero{background:var(--s2);border-bottom:1px solid var(--border);padding:36px var(--pad) 32px}
+.ob-logo{font-family:'Barlow Condensed',sans-serif;font-size:52px;font-weight:800;letter-spacing:5px;text-transform:uppercase;color:var(--t1);line-height:1;margin-bottom:4px}
+.ob-logo span{color:var(--brand)}
+.ob-tagline{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--t3);margin-bottom:24px}
+.ob-headline{font-family:'Barlow Condensed',sans-serif;font-size:40px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--t1);line-height:1.05}
+.ob-headline em{color:var(--brand);font-style:normal}
+.ob-section{padding:22px var(--pad) 0}
+.ob-section-label{font-size:10px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--brand);margin-bottom:6px}
+.ob-section-title{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;letter-spacing:1px;color:var(--t1);margin-bottom:14px}
+.truth-card{background:var(--s2);border:1px solid var(--border);border-left:3px solid var(--brand);border-radius:var(--r-lg);padding:16px 16px 16px 18px;font-size:13px;color:var(--t2);line-height:1.8}
+.truth-card strong{color:var(--t1)}
+.goal-list{display:flex;flex-direction:column;gap:8px}
+.goal-item{background:var(--s2);border:1.5px solid var(--border);border-radius:var(--r-md);padding:13px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all 0.18s;user-select:none}
+.goal-item.on{border-color:var(--brand);background:var(--brand-dim)}
+.goal-num{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;color:var(--t3);flex-shrink:0;width:20px}
+.goal-item.on .goal-num{color:var(--brand)}
+.goal-text{font-size:14px;font-weight:600;color:var(--t1)}
+.goal-sub{font-size:11px;color:var(--t2);margin-top:2px}
+.struggle-list{display:flex;flex-direction:column;gap:7px}
+.struggle-item{background:var(--s2);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:12px 14px;font-size:13px;font-weight:500;color:var(--t2);cursor:pointer;display:flex;align-items:center;gap:10px;transition:all 0.18s;user-select:none}
+.struggle-item::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--s4);flex-shrink:0;transition:background 0.18s}
+.struggle-item.on{border-color:var(--brand);color:var(--t1)}
+.struggle-item.on::before{background:var(--brand)}
+.prog-choose-list{display:flex;flex-direction:column;gap:10px}
+.pc-card{background:var(--s2);border:1.5px solid var(--border);border-radius:var(--r-xl);overflow:hidden;cursor:pointer;transition:border-color 0.18s;position:relative;user-select:none}
+.pc-card.on{border-color:var(--brand)}
+.pc-check{position:absolute;top:12px;right:12px;width:22px;height:22px;background:var(--brand);border-radius:50%;display:none;align-items:center;justify-content:center;font-size:11px;color:#111210;font-weight:800}
+.pc-card.on .pc-check{display:flex}
+.pc-head{padding:14px 16px 10px;border-bottom:1px solid var(--border)}
+.pc-badge{display:inline-block;font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:100px;margin-bottom:7px}
+.pc-badge.pop{background:var(--brand);color:#111210}
+.pc-badge.kick{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(200,168,75,0.3)}
+.pc-badge.flex{background:var(--blue-dim);color:var(--blue);border:1px solid rgba(91,127,166,0.3)}
+.pc-badge.mil{background:rgba(124,92,191,0.15);color:#A78BFA;border:1px solid rgba(124,92,191,0.3)}
+.pc-name{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;letter-spacing:1px;color:var(--t1)}
+.pc-desc{font-size:12px;color:var(--t2);margin-top:4px;line-height:1.5}
+.pc-body{padding:10px 16px;display:flex;flex-wrap:wrap;gap:6px}
+.pc-tag{background:var(--s3);border-radius:6px;padding:4px 10px;font-size:11px;color:var(--t2);font-weight:500}
+.ob-cta-wrap{padding:24px var(--pad) 0}
+/* HOME */
+.home-header{padding:14px var(--pad) 0;display:flex;justify-content:space-between;align-items:center}
+.home-logo{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--t1)}
+.home-logo span{color:var(--brand)}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--s3);border:2px solid var(--brand);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--brand);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px}
+.hero-card{margin:12px var(--pad) 0;background:var(--s2);border:1px solid var(--border);border-radius:var(--r-xl);padding:18px}
+.hero-greeting{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--brand);display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.hero-greeting::before{content:'';width:18px;height:1px;background:var(--brand)}
+.hero-q{font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--t1);line-height:0.95;margin-bottom:8px}
+.hero-sub{font-size:12px;color:var(--t2);margin-bottom:14px}
+.time-grid{display:flex;gap:8px}
+.time-chip{flex:1;background:transparent;border:1px solid var(--border);border-radius:var(--r-sm);padding:10px 4px;text-align:center;cursor:pointer;transition:all 0.15s;user-select:none}
+.time-chip.on{background:var(--brand);border-color:var(--brand)}
+.time-chip-val{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;text-transform:uppercase;color:var(--t1);line-height:1}
+.time-chip.on .time-chip-val{color:#111210}
+.time-chip-lbl{font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:1px;margin-top:2px;font-weight:600}
+.time-chip.on .time-chip-lbl{color:rgba(17,18,16,0.65)}
+.stat-row{display:flex;gap:8px;padding:0 var(--pad)}
+.stat-pill{flex:1;background:var(--s2);border:1px solid var(--border);border-radius:var(--r-lg);padding:12px 8px;text-align:center;position:relative;overflow:hidden}
+.stat-pill::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.stat-pill.c-brand::before{background:var(--brand)}.stat-pill.c-green::before{background:var(--green)}
+.stat-pill.c-gold::before{background:var(--gold)}.stat-pill.c-blue::before{background:var(--blue)}
+.stat-val{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;color:var(--t1);letter-spacing:1px;line-height:1}
+.stat-lbl{font-size:9px;color:var(--t2);font-weight:700;text-transform:uppercase;letter-spacing:0.8px;margin-top:3px}
+.prog-card{margin:0 var(--pad);background:var(--s2);border:1px solid var(--border);border-radius:var(--r-xl);padding:16px;position:relative;overflow:hidden}
+.prog-phase{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--brand);margin-bottom:4px}
+.prog-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.prog-name{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;letter-spacing:1px;color:var(--t1)}
+.prog-sub{font-size:11px;color:var(--t2);margin-top:3px}
+.prog-wk{text-align:right}
+.prog-wk-num{font-family:'Barlow Condensed',sans-serif;font-size:42px;font-weight:800;color:var(--brand);letter-spacing:2px;line-height:1}
+.prog-wk-lbl{font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:1.5px;font-weight:600}
+.prog-bar-track{height:3px;background:var(--s4);border-radius:3px;overflow:hidden;margin-bottom:6px}
+.prog-bar-fill{height:100%;background:linear-gradient(90deg,var(--brand),var(--gold));border-radius:3px}
+.prog-meta{display:flex;justify-content:space-between;font-size:10px;color:var(--t2);font-weight:600}
+.blueprint-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 var(--pad)}
+.bp-tile{background:var(--s2);border:1px solid var(--border);border-radius:var(--r-lg);padding:14px 12px;position:relative;overflow:hidden;cursor:pointer}
+.bp-tile::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px}
+.bp-tile.w::after{background:var(--brand)}.bp-tile.n::after{background:var(--green)}
+.bp-tile.m::after{background:var(--blue)}.bp-tile.t::after{background:var(--gold)}
+.bp-tag{font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+.bp-tile.w .bp-tag{color:var(--brand)}.bp-tile.n .bp-tag{color:var(--green)}
+.bp-tile.m .bp-tag{color:var(--blue)}.bp-tile.t .bp-tag{color:var(--gold)}
+.bp-val{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;letter-spacing:1px;color:var(--t1);line-height:1.1}
+.bp-sub{font-size:10px;color:var(--t2);margin-top:4px}
+.quote-card{margin:0 var(--pad);background:var(--s2);border:1px solid var(--border);border-left:3px solid var(--brand);border-radius:var(--r-lg);padding:16px 16px 16px 18px}
+.quote-eyebrow{font-size:9px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:var(--brand);margin-bottom:8px}
+.quote-text{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:600;letter-spacing:0.5px;color:var(--t1);line-height:1.35}
+.quote-attr{font-size:10px;color:var(--t3);margin-top:8px}
+.workout-card{margin:0 var(--pad);background:var(--s2);border:1px solid var(--border);border-radius:var(--r-xl);overflow:hidden}
+.wc-head{padding:16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start}
+.wc-badge{display:inline-block;background:var(--brand);color:#111210;font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:100px;margin-bottom:6px}
+.wc-title{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;letter-spacing:1px;color:var(--t1)}
+.wc-meta{font-size:11px;color:var(--t2);margin-top:3px}
+.wc-time-num{font-family:'Barlow Condensed',sans-serif;font-size:38px;font-weight:800;color:var(--brand);letter-spacing:2px;line-height:1;text-align:right}
+.wc-time-lbl{font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:1px;font-weight:600;text-align:right}
+.ex-list{padding:8px 16px}
+.ex-row{display:flex;align-items:center;padding:10px 0;gap:12px;border-bottom:1px solid var(--border)}
+.ex-row:last-child{border-bottom:none}
+.ex-num{width:26px;height:26px;background:var(--brand-dim);border:1px solid rgba(200,168,75,0.25);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:800;color:var(--brand);flex-shrink:0}
+.ex-info{flex:1}.ex-name{font-size:14px;font-weight:600;color:var(--t1)}
+.ex-muscle{font-size:11px;color:var(--t2);margin-top:2px}
+.ex-sets{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;color:var(--brand);letter-spacing:0.5px}
+.wc-btn{padding:16px}
+/* PROGRAMS */
+.prog-list{display:flex;flex-direction:column;gap:10px;padding:0 var(--pad)}
+.pl-item{background:var(--s2);border:1px solid var(--border);border-radius:var(--r-xl);overflow:hidden;cursor:pointer;transition:border-color 0.2s;user-select:none}
+.pl-item.active-prog{border-color:var(--brand)}
+.pl-top{padding:14px 16px 12px;display:flex;justify-content:space-between;align-items:flex-start}
+.pl-badge{display:inline-block;font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:100px;margin-bottom:7px}
+.pl-badge.cur{background:var(--brand);color:#111210}
+.pl-badge.b8{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(200,168,75,0.3)}
+.pl-badge.bdaily{background:var(--blue-dim);color:var(--blue);border:1px solid rgba(91,127,166,0.3)}
+.pl-badge.belite{background:rgba(124,92,191,0.15);color:#A78BFA;border:1px solid rgba(124,92,191,0.3)}
+.pl-name{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;letter-spacing:1px;color:var(--t1)}
+.pl-desc{font-size:12px;color:var(--t2);margin-top:4px;line-height:1.5}
+.pl-dur{font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:800;letter-spacing:2px;line-height:1;text-align:right}
+.pl-dur span{display:block;font-family:'Barlow',sans-serif;font-size:9px;letter-spacing:1px;text-transform:uppercase;font-weight:700;color:var(--t2);text-align:right;margin-top:2px}
+.pl-tags{padding:0 16px 12px;display:flex;flex-wrap:wrap;gap:6px}
+.pl-tag{background:var(--s3);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:11px;color:var(--t2);font-weight:500}
+.pl-tag.hi{border-color:rgba(200,168,75,0.3);color:var(--brand);background:var(--brand-dim)}
+.pl-stats{display:flex;border-top:1px solid var(--border)}
+.pl-stat{flex:1;padding:10px;text-align:center;border-right:1px solid var(--border)}
+.pl-stat:last-child{border-right:none}
+.pl-stat-n{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:var(--t1)}
+.pl-stat-l{font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:0.8px;font-weight:600;margin-top:2px}
+/* Week overlay */
+.ov-head{padding:16px var(--pad) 14px;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:5}
+.ov-back{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--brand);cursor:pointer;margin-bottom:8px;display:inline-block}
+.ov-title{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;letter-spacing:2px;color:var(--t1)}
+.ov-sub{font-size:11px;color:var(--t2);margin-top:3px}
+.phase-head{padding:14px var(--pad) 6px;display:flex;align-items:center;gap:8px}
+.phase-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.phase-name{font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase}
+.wk-list{display:flex;flex-direction:column;gap:6px;padding:0 var(--pad)}
+.wk-row{background:var(--s2);border:1px solid var(--border);border-radius:var(--r-md);padding:12px 14px;display:flex;align-items:center;gap:12px;cursor:pointer}
+.wk-row.done{opacity:0.5}.wk-row.now{border-color:var(--brand);background:rgba(200,168,75,0.04)}
+.wk-n{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--t2);width:34px;flex-shrink:0}
+.wk-row.done .wk-n{color:var(--green)}.wk-row.now .wk-n{color:var(--brand)}
+.wk-info{flex:1}.wk-name{font-size:13px;font-weight:600;color:var(--t1)}
+.wk-focus{font-size:11px;color:var(--t2);margin-top:2px}
+.wk-status{font-size:11px;font-weight:700;color:var(--t3)}
+.wk-row.done .wk-status{color:var(--green)}.wk-row.now .wk-status{color:var(--brand)}
+/* FUEL */
+.fuel-summary{margin:12px var(--pad) 0;background:var(--s2);border:1px solid rgba(107,143,94,0.25);border-radius:var(--r-xl);padding:16px}
+.fuel-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.fuel-title{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;letter-spacing:1px;color:var(--t1)}
+.fuel-date{font-size:11px;color:var(--t2);margin-top:3px}
+.ring-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center}
+.ring-svg{transform:rotate(-90deg)}
+.ring-label{position:absolute;text-align:center}
+.ring-num{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:var(--t1);letter-spacing:1px;display:block}
+.ring-unit{font-size:9px;color:var(--t2);font-weight:700;letter-spacing:1px;text-transform:uppercase;display:block}
+.macro-row{display:flex;gap:8px}
+.macro-pill{flex:1;background:var(--s3);border-radius:var(--r-md);padding:10px 8px;text-align:center}
+.macro-n{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;line-height:1}
+.macro-l{font-size:9px;color:var(--t2);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-top:3px}
+.macro-pill.p .macro-n{color:var(--green)}.macro-pill.c .macro-n{color:var(--gold)}.macro-pill.f .macro-n{color:var(--blue)}
+.meal-list{display:flex;flex-direction:column;gap:8px;padding:0 var(--pad)}
+.meal-row{background:var(--s2);border:1px solid var(--border);border-radius:var(--r-md);padding:12px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:border-color 0.2s}
+.meal-row.empty{border-style:dashed;opacity:0.55}
+.meal-left{display:flex;align-items:center;gap:10px}
+.meal-icon{width:38px;height:38px;background:var(--s3);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:800;color:var(--t2);flex-shrink:0}
+.meal-name{font-size:14px;font-weight:600;color:var(--t1)}.meal-detail{font-size:11px;color:var(--t2);margin-top:2px}
+.meal-cal{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:var(--green)}
+.meal-row.empty .meal-cal{color:var(--t3);font-size:14px}
+.guide-card{margin:0 var(--pad);background:var(--s2);border:1px solid var(--border);border-radius:var(--r-xl);overflow:hidden}
+.guide-head{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.guide-head-title{font-size:13px;font-weight:700;color:var(--t1)}.guide-head-sub{font-size:11px;color:var(--t2);margin-top:2px}
+.guide-rows{padding:0 16px}
+.guide-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--border)}
+.guide-row:last-child{border-bottom:none}
+.guide-place{font-size:13px;font-weight:600;color:var(--t1)}.guide-order{font-size:11px;color:var(--t2);margin-top:2px}
+.guide-cal{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;color:var(--green)}
+.supp-card{margin:0 var(--pad);background:var(--s2);border:1px solid rgba(200,168,75,0.2);border-radius:var(--r-xl);padding:16px;display:flex;justify-content:space-between;align-items:center}
+.supp-eyebrow{font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--brand);margin-bottom:4px}
+.supp-name{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:var(--t1)}
+.supp-detail{font-size:11px;color:var(--t2);margin-top:2px}
+.supp-btn{background:var(--brand);color:#111210;border:none;border-radius:var(--r-sm);padding:12px 18px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;white-space:nowrap}
+/* MIND */
+.checkin-card{margin:12px var(--pad) 0;background:var(--s2);border:1px solid rgba(91,127,166,0.2);border-radius:var(--r-xl);padding:18px}
+.checkin-title{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;letter-spacing:1px;color:var(--t1)}
+.checkin-sub{font-size:12px;color:var(--t2);margin-top:3px;margin-bottom:14px}
+.checkin-q{font-size:13px;font-weight:600;color:var(--t1);margin-bottom:12px}
+.mood-grid{display:flex;gap:6px}
+.mood-chip{flex:1;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:var(--r-sm);padding:11px 4px;text-align:center;cursor:pointer;transition:all 0.18s;user-select:none}
+.mood-chip.on{border-color:var(--blue);background:var(--blue-dim)}
+.mood-word{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:1px;color:var(--t2);display:block;margin-bottom:4px}
+.mood-chip.on .mood-word{color:var(--blue)}
+.mood-bar{height:2px;border-radius:2px;background:var(--s4);margin:0 auto;width:18px}
+.mood-chip.on .mood-bar{background:var(--blue)}
+.tool-list{display:flex;flex-direction:column;gap:8px;padding:0 var(--pad)}
+.tool-row{background:var(--s2);border:1px solid var(--border);border-radius:var(--r-lg);padding:14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:border-color 0.2s;user-select:none}
+.tool-row:active{opacity:0.7}
+.tool-left{display:flex;align-items:center;gap:12px}
+.tool-icon{width:42px;height:42px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tool-icon.stress{background:var(--blue-dim)}.tool-icon.breath{background:var(--green-dim)}
+.tool-icon.sleep{background:rgba(124,92,191,0.12)}.tool-icon.time{background:var(--gold-dim)}
+.tool-icon-lbl{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:1px}
+.tool-icon.stress .tool-icon-lbl{color:var(--blue)}.tool-icon.breath .tool-icon-lbl{color:var(--green)}
+.tool-icon.sleep .tool-icon-lbl{color:#A78BFA}.tool-icon.time .tool-icon-lbl{color:var(--gold)}
+.tool-name{font-size:14px;font-weight:700;color:var(--t1)}.tool-desc{font-size:11px;color:var(--t2);margin-top:3px}
+.tool-dur{font-size:12px;color:var(--t2);font-weight:600;flex-shrink:0}
+.pro-card{margin:0 var(--pad);background:var(--s2);border:1px solid var(--border);border-radius:var(--r-xl);padding:16px}
+.pro-eyebrow{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--blue);margin-bottom:7px}
+.pro-title{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;letter-spacing:1px;color:var(--t1);margin-bottom:8px}
+.pro-body{font-size:12px;color:var(--t2);line-height:1.7;margin-bottom:14px}
+.crisis-card{margin:0 var(--pad);background:var(--s2);border:1px solid rgba(166,50,40,0.3);border-radius:var(--r-xl);padding:16px}
+.crisis-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.crisis-dot{width:9px;height:9px;background:var(--red);border-radius:50%;flex-shrink:0;box-shadow:0 0 6px rgba(166,50,40,0.5)}
+.crisis-title{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;letter-spacing:1px;color:var(--t1)}
+.crisis-body{font-size:12px;color:var(--t2);line-height:1.7;margin-bottom:14px}
+/* CREW */
+.crew-top{margin:12px var(--pad) 0;background:var(--s2);border:1px solid var(--border);border-radius:var(--r-xl);padding:16px;display:flex;justify-content:space-between;align-items:center}
+.crew-top-title{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;letter-spacing:1px;color:var(--t1)}
+.crew-top-sub{font-size:11px;color:var(--t2);margin-top:3px}
+.crew-num{font-family:'Barlow Condensed',sans-serif;font-size:40px;font-weight:800;color:var(--brand);line-height:1;text-align:right}
+.crew-num-l{font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:1.5px;font-weight:600;text-align:right}
+.challenge-card{margin:0 var(--pad);background:var(--s2);border:1px solid rgba(91,127,166,0.2);border-radius:var(--r-xl);padding:16px}
+.ch-eyebrow{font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--blue);margin-bottom:5px}
+.ch-title{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;letter-spacing:1px;color:var(--t1);margin-bottom:5px}
+.ch-desc{font-size:12px;color:var(--t2);line-height:1.6;margin-bottom:12px}
+.ch-track{height:3px;background:var(--s4);border-radius:3px;overflow:hidden;margin-bottom:7px}
+.ch-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--blue),#7AB8FF);width:63%}
+.ch-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--t2);font-weight:600}
+.lb-list{display:flex;flex-direction:column;gap:7px;padding:0 var(--pad)}
+.lb-row{background:var(--s2);border:1px solid var(--border);border-radius:var(--r-md);padding:11px 14px;display:flex;align-items:center;gap:10px}
+.lb-row.gold{border-color:rgba(200,168,75,0.3)}.lb-row.you{border-color:rgba(200,168,75,0.4);background:rgba(200,168,75,0.03)}
+.lb-rank{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:var(--t3);width:22px;flex-shrink:0}
+.lb-row.gold .lb-rank{color:var(--gold)}.lb-row.you .lb-rank{color:var(--brand)}
+.lb-av{width:34px;height:34px;border-radius:50%;background:var(--s3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--t2);flex-shrink:0;border:1.5px solid transparent;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px}
+.lb-row.gold .lb-av{border-color:var(--gold);color:var(--gold)}.lb-row.you .lb-av{border-color:var(--brand);color:var(--brand)}
+.lb-info{flex:1}.lb-name{font-size:13px;font-weight:600;color:var(--t1)}.lb-role{font-size:11px;color:var(--t2);margin-top:2px}
+.lb-score{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:var(--brand)}
+.lb-row.gold .lb-score{color:var(--gold)}
+.feed-list{display:flex;flex-direction:column;gap:8px;padding:0 var(--pad)}
+.feed-item{background:var(--s2);border:1px solid var(--border);border-radius:var(--r-xl);padding:14px}
+.feed-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.feed-av{width:34px;height:34px;border-radius:50%;background:var(--s3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--t2);flex-shrink:0;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px}
+.feed-name{font-size:13px;font-weight:700;color:var(--t1)}.feed-role{font-size:11px;color:var(--t2)}
+.feed-time{margin-left:auto;font-size:11px;color:var(--t3)}
+.feed-body{font-size:13px;color:var(--t2);line-height:1.65}
+.feed-actions{display:flex;gap:14px;margin-top:12px;padding-top:10px;border-top:1px solid var(--border)}
+.feed-action{font-size:12px;color:var(--t3);font-weight:600;cursor:pointer;transition:color 0.15s}
+.feed-action.fire{color:var(--brand)}
+/* TOOL OVERLAYS */
+.to-head{padding:16px var(--pad) 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:5}
+.to-back{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--t2);cursor:pointer;padding:8px 0}
+.to-badge{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase}
+.to-body{padding:22px var(--pad)}
+.to-eyebrow{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;margin-bottom:7px;display:flex;align-items:center;gap:8px}
+.to-eyebrow::before{content:'';width:18px;height:1px;background:currentColor;opacity:0.6}
+.to-title{font-family:'Barlow Condensed',sans-serif;font-size:38px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--t1);line-height:1.0;margin-bottom:14px}
+.to-intro{font-size:13px;color:var(--t2);line-height:1.8;margin-bottom:24px;border-left:2px solid var(--border);padding-left:14px}
+.to-steps{display:flex;flex-direction:column;margin-bottom:24px}
+.to-step{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid var(--border)}
+.to-step:last-child{border-bottom:none}
+.to-step-num{width:30px;height:30px;border:1.5px solid;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;flex-shrink:0;margin-top:2px}
+.to-step-title{font-size:14px;font-weight:700;color:var(--t1);margin-bottom:6px}
+.to-step-text{font-size:13px;color:var(--t2);line-height:1.7}
+.to-quote{border-left:2px solid;padding:12px 16px;margin-bottom:22px}
+.to-quote-text{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:600;color:var(--t1);line-height:1.4;margin-bottom:6px}
+.to-quote-attr{font-size:10px;color:var(--t3)}
+.to-tip{border:1px solid;border-radius:var(--r-lg);padding:14px;margin-bottom:22px}
+.to-tip-title{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:7px}
+.to-tip-body{font-size:12px;color:var(--t2);line-height:1.65}
+/* Box Breathing */
+.bb-wrap{display:flex;flex-direction:column;align-items:center;padding:20px 0}
+.bb-box-outer{position:relative;width:170px;height:170px;margin-bottom:20px}
+.bb-box-inner{position:absolute;inset:0;border:2px solid var(--green);border-radius:var(--r-md);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:transform 0.6s ease,border-color 0.5s ease}
+.bb-box-inner.inhale{transform:scale(1.12);border-color:var(--green)}
+.bb-box-inner.hold-in{transform:scale(1.12);border-color:var(--gold)}
+.bb-box-inner.exhale{transform:scale(1.0);border-color:var(--blue)}
+.bb-box-inner.hold-out{transform:scale(1.0);border-color:var(--t3)}
+.bb-phase{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--t2);margin-bottom:4px}
+.bb-count{font-family:'Barlow Condensed',sans-serif;font-size:52px;font-weight:800;color:var(--t1);line-height:1;letter-spacing:2px}
+.bb-ctrl{display:flex;flex-direction:column;align-items:center;gap:8px;width:100%;margin-bottom:22px}
+.bb-start{background:var(--green);color:#111210;border:none;border-radius:var(--r-sm);padding:14px 36px;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:opacity 0.15s}
+.bb-start:active{opacity:0.8}
+.bb-rounds-lbl{font-size:12px;color:var(--t3);font-weight:600}
+.bb-pattern{margin-bottom:22px}
+.bb-pattern-title{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--t3);margin-bottom:10px}
+.bb-pattern-row{display:flex;gap:8px}
+.bb-p-step{flex:1;background:var(--s2);border:1px solid var(--border);border-top:2px solid;border-radius:var(--r-sm);padding:10px 6px;text-align:center}
+.bb-p-n{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:var(--t1)}
+.bb-p-l{font-size:9px;color:var(--t2);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-top:3px}
+/* Time Blocking */
+.tb-label{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--t3);margin-bottom:12px}
+.tb-blocks{display:flex;flex-direction:column;gap:7px;margin-bottom:18px}
+.tb-row{display:flex;align-items:stretch;gap:10px}
+.tb-time{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;color:var(--t3);width:44px;flex-shrink:0;padding-top:12px}
+.tb-block{flex:1;background:var(--s2);border:1px solid var(--border);border-radius:var(--r-md);padding:12px 14px;transition:all 0.18s;user-select:none}
+.tb-block.open{border-left:3px solid var(--brand);cursor:pointer}
+.tb-block.open:active{opacity:0.7}
+.tb-block.open.sel{background:rgba(200,168,75,0.06);border-color:var(--brand)}
+.tb-block.used{opacity:0.4;border-left:3px solid var(--s4)}
+.tb-block-name{font-size:13px;font-weight:700;color:var(--t1)}
+.tb-block-sub{font-size:11px;color:var(--t2);margin-top:2px}
+.tb-block-win{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;color:var(--brand);margin-top:5px}
+.tb-summary{background:var(--s2);border:1px solid rgba(200,168,75,0.25);border-radius:var(--r-lg);padding:16px;text-align:center;margin-bottom:18px}
+.tb-sum-label{font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--t3);margin-bottom:5px}
+.tb-sum-num{font-family:'Barlow Condensed',sans-serif;font-size:34px;font-weight:800;letter-spacing:2px;color:var(--brand);margin-bottom:5px}
+.tb-sum-sub{font-size:12px;color:var(--t2);line-height:1.5}
+/* LIBRARY */
+.lib-search-wrap{padding:10px var(--pad) 0;position:sticky;top:0;z-index:4;background:var(--bg);padding-top:10px}
+.lib-search{display:flex;align-items:center;background:var(--s2);border:1px solid var(--border);border-radius:var(--r-md);padding:0 14px;gap:10px;height:44px}
+.lib-search input{flex:1;background:none;border:none;outline:none;color:var(--t1);font-family:'Barlow',sans-serif;font-size:15px;font-weight:500}
+.lib-search input::placeholder{color:var(--t3)}
+.lib-search-icon{color:var(--t3);font-size:16px;flex-shrink:0}
+.lib-cats{display:flex;gap:7px;padding:10px var(--pad);overflow-x:auto;scrollbar-width:none}
+.lib-cats::-webkit-scrollbar{display:none}
+.lib-cat{display:flex;align-items:center;gap:6px;background:var(--s2);border:1.5px solid var(--border);border-radius:100px;padding:7px 14px;white-space:nowrap;cursor:pointer;transition:all 0.18s;user-select:none;flex-shrink:0}
+.lib-cat.on{border-color:var(--cat-color,var(--brand));background:rgba(255,255,255,0.04)}
+.lib-cat-dot{width:6px;height:6px;border-radius:50%;background:var(--cat-color,var(--brand));flex-shrink:0}
+.lib-cat-lbl{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.5px;text-transform:uppercase;color:var(--t2);transition:color 0.18s}
+.lib-cat.on .lib-cat-lbl{color:var(--cat-color,var(--brand))}
+.lib-count{padding:0 var(--pad) 8px;font-size:11px;color:var(--t3);font-weight:600;letter-spacing:0.5px}
+.lib-grid{display:flex;flex-direction:column;gap:7px;padding:0 var(--pad)}
+.lib-row{background:var(--s2);border:1px solid var(--border);border-radius:var(--r-lg);padding:13px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:border-color 0.18s;user-select:none}
+.lib-row:active{opacity:0.7}
+.lib-row.in-workout{border-color:var(--brand)}
+.lib-cat-badge{width:38px;height:38px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--s3)}
+.lib-cat-abbr{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:800;letter-spacing:0.5px}
+.lib-info{flex:1;min-width:0}
+.lib-name{font-size:14px;font-weight:700;color:var(--t1)}
+.lib-muscles{font-size:11px;color:var(--t2);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lib-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0}
+.lib-diff{font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:100px}
+.lib-add-btn{width:28px;height:28px;border:1.5px solid var(--border);border-radius:50%;background:var(--s3);display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--t3);cursor:pointer;transition:all 0.18s;flex-shrink:0;font-weight:300;line-height:1}
+.lib-row.in-workout .lib-add-btn{background:var(--brand);border-color:var(--brand);color:#111210;font-size:13px;font-weight:800}
+.builder-bar{position:absolute;bottom:0;left:0;right:0;background:var(--s1);border-top:1px solid rgba(200,168,75,0.3);padding:12px var(--pad);display:flex;align-items:center;justify-content:space-between;gap:12px;transform:translateY(100%);transition:transform 0.3s ease;z-index:20}
+.builder-bar.visible{transform:translateY(0)}
+.builder-bar-info{flex:1}
+.builder-bar-count{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;letter-spacing:1px;color:var(--brand);line-height:1}
+.builder-bar-sub{font-size:11px;color:var(--t2);margin-top:2px}
+.builder-bar-btn{background:var(--brand);color:#111210;border:none;border-radius:var(--r-sm);padding:12px 20px;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;letter-spacing:2px;text-transform:uppercase;cursor:pointer;white-space:nowrap}
+.builder-bar-clear{background:none;border:1px solid var(--border);border-radius:var(--r-sm);padding:12px 14px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;color:var(--t2);cursor:pointer}
+/* EXERCISE DETAIL */
+.ex-detail-demo{background:var(--s2);border-bottom:1px solid var(--border);padding:20px var(--pad);display:flex;align-items:center;justify-content:center;min-height:140px;position:relative}
+.ex-demo-visual{display:flex;flex-direction:column;align-items:center;gap:10px}
+.ex-demo-icon{font-family:'Barlow Condensed',sans-serif;font-size:52px;font-weight:800;letter-spacing:2px;opacity:0.12;color:var(--t1);line-height:1}
+.ex-demo-cue{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;letter-spacing:0.5px;color:var(--t2);text-align:center;line-height:1.4;padding:0 20px;font-style:italic}
+.ex-demo-placeholder{position:absolute;top:10px;right:14px;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);opacity:0.6}
+.ex-detail-meta{padding:16px var(--pad);border-bottom:1px solid var(--border)}
+.ex-detail-title{font-family:'Barlow Condensed',sans-serif;font-size:30px;font-weight:800;letter-spacing:1px;color:var(--t1);line-height:1;margin-bottom:8px}
+.ex-detail-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.ex-detail-tag{background:var(--s3);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:11px;color:var(--t2);font-weight:500}
+.ex-detail-tag.primary{font-weight:700}
+.ex-default-sets{display:flex;gap:8px}
+.ex-set-pill{flex:1;background:var(--s3);border:1px solid var(--border);border-radius:var(--r-md);padding:10px 8px;text-align:center}
+.ex-set-n{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:var(--t1);line-height:1}
+.ex-set-l{font-size:9px;color:var(--t2);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-top:3px}
+.ex-steps-wrap{padding:16px var(--pad);border-bottom:1px solid var(--border)}
+.ex-steps-title{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:var(--t2);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.ex-steps-title::before{content:'';width:16px;height:1px;background:var(--brand)}
+.ex-step-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.ex-step-item:last-child{border-bottom:none}
+.ex-step-n{width:26px;height:26px;border:1.5px solid var(--brand);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:800;color:var(--brand);flex-shrink:0;margin-top:2px}
+.ex-step-text{font-size:13px;color:var(--t2);line-height:1.75}
+.ex-mods-wrap{padding:16px var(--pad)}
+.ex-mod-card{background:var(--s2);border:1px solid var(--border);border-radius:var(--r-lg);padding:14px;margin-bottom:10px}
+.ex-mod-label{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:7px}
+.ex-mod-label.easier{color:var(--green)}.ex-mod-label.harder{color:var(--red)}
+.ex-mod-text{font-size:13px;color:var(--t2);line-height:1.65}
+/* Workout preview */
+.workout-preview{padding:16px var(--pad)}
+.wp-ex-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border)}
+.wp-ex-row:last-child{border-bottom:none}
+.wp-num{width:28px;height:28px;background:var(--brand-dim);border:1px solid rgba(200,168,75,0.25);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:800;color:var(--brand);flex-shrink:0}
+.wp-info{flex:1}.wp-name{font-size:14px;font-weight:600;color:var(--t1)}.wp-muscle{font-size:11px;color:var(--t2);margin-top:2px}
+.wp-sets{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;color:var(--brand)}
+.wp-remove{width:26px;height:26px;border-radius:50%;border:1px solid var(--border);background:var(--s3);display:flex;align-items:center;justify-content:center;color:var(--t3);font-size:14px;cursor:pointer;flex-shrink:0;transition:all 0.15s}
+.wp-remove:active{background:var(--red);color:var(--t1);border-color:var(--red)}
 </style>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-<div id="app" style="display:flex;flex-direction:column;width:100%;height:100%;align-items:center;justify-content:center;background:#111210;">
-  <div style="font-family:'Barlow Condensed',sans-serif;font-size:52px;font-weight:800;letter-spacing:5px;color:#E8E4DC;">
-    GROUND<span style="color:#C8A84B;">WORK</span>
+<div id="app">
+  <!-- ONBOARDING -->
+  <div id="onboarding">
+    <div class="ob-hero">
+      <div class="ob-logo">Ground<span>work</span></div>
+      <div class="ob-tagline">Performance Platform</div>
+      <div class="ob-headline">The job takes<br><em>everything.</em><br>Take something back.</div>
+    </div>
+    <div class="ob-section">
+      <div class="ob-section-label">Before we start</div>
+      <div class="ob-section-title">You already know what you want.</div>
+      <div class="truth-card">You didn't download this because you don't know what working out is.<br><br>You downloaded it because the job has been running your life — and somewhere between the early mornings and the long drives home, you lost yourself.<br><br><strong>Groundwork gives you back to yourself. One day at a time.</strong></div>
+    </div>
+    <div class="ob-section">
+      <div class="ob-section-label">Step 1 of 2</div>
+      <div class="ob-section-title">What do you want most?</div>
+      <div class="goal-list">
+        <div class="goal-item on" onclick="this.classList.toggle('on')"><span class="goal-num">01</span><div><div class="goal-text">More energy on the jobsite</div><div class="goal-sub">Stop running on empty by 2pm</div></div></div>
+        <div class="goal-item" onclick="this.classList.toggle('on')"><span class="goal-num">02</span><div><div class="goal-text">Lose weight and get stronger</div><div class="goal-sub">Look like the person you know you can be</div></div></div>
+        <div class="goal-item on" onclick="this.classList.toggle('on')"><span class="goal-num">03</span><div><div class="goal-text">Less stress, clearer head</div><div class="goal-sub">The job doesn't have to own your mind</div></div></div>
+        <div class="goal-item" onclick="this.classList.toggle('on')"><span class="goal-num">04</span><div><div class="goal-text">Be present for my family</div><div class="goal-sub">Show up at home like you do on the site</div></div></div>
+        <div class="goal-item" onclick="this.classList.toggle('on')"><span class="goal-num">05</span><div><div class="goal-text">Sleep better</div><div class="goal-sub">Stop staring at the ceiling at 2am</div></div></div>
+      </div>
+    </div>
+    <div class="ob-section">
+      <div class="ob-section-label">Step 2 of 2 — Be honest</div>
+      <div class="ob-section-title">What's been in the way?</div>
+      <div class="struggle-list">
+        <div class="struggle-item on" onclick="this.classList.toggle('on')">Not enough time in the day</div>
+        <div class="struggle-item" onclick="this.classList.toggle('on')">Don't know where to start</div>
+        <div class="struggle-item on" onclick="this.classList.toggle('on')">Too exhausted after work</div>
+        <div class="struggle-item" onclick="this.classList.toggle('on')">Eating bad on the road every day</div>
+        <div class="struggle-item" onclick="this.classList.toggle('on')">Stress, burnout, mental health</div>
+        <div class="struggle-item" onclick="this.classList.toggle('on')">Started before. Didn't stick.</div>
+      </div>
+    </div>
+    <div class="ob-section">
+      <div class="ob-section-label">Choose Your Program</div>
+      <div class="ob-section-title">Pick the path that fits your life.</div>
+      <div class="prog-choose-list">
+        <div class="pc-card on" onclick="selPc(this)"><div class="pc-check">&#10003;</div><div class="pc-head"><div class="pc-badge pop">Most Popular</div><div class="pc-name">16-Week Foundation</div><div class="pc-desc">The full transformation. 4 phases. Built to change everything — permanently.</div></div><div class="pc-body"><div class="pc-tag">Phase 1: Activate</div><div class="pc-tag">Phase 2: Build</div><div class="pc-tag">Phase 3: Push</div><div class="pc-tag">Phase 4: Peak</div><div class="pc-tag">Nutrition included</div><div class="pc-tag">Mental health tools</div></div></div>
+        <div class="pc-card" onclick="selPc(this)"><div class="pc-check">&#10003;</div><div class="pc-head"><div class="pc-badge kick">8-Week Kickstart</div><div class="pc-name">8-Week Kickstart</div><div class="pc-desc">Fast results. Prove it to yourself before going all in.</div></div><div class="pc-body"><div class="pc-tag">Wake Up (Wks 1–4)</div><div class="pc-tag">Lock In (Wks 5–8)</div><div class="pc-tag">30 min/day</div></div></div>
+        <div class="pc-card" onclick="selPc(this)"><div class="pc-check">&#10003;</div><div class="pc-head"><div class="pc-badge flex">Daily Blueprint</div><div class="pc-name">Daily Blueprint</div><div class="pc-desc">No program. Tell us your time each morning. We build the day.</div></div><div class="pc-body"><div class="pc-tag">15–60 min options</div><div class="pc-tag">Adapts daily</div></div></div>
+        <div class="pc-card" onclick="selPc(this)"><div class="pc-check">&#10003;</div><div class="pc-head"><div class="pc-badge mil">Military Functional</div><div class="pc-name">Military Functional</div><div class="pc-desc">TACP-inspired. Hybrid training. For guys who want to operate at a different level.</div></div><div class="pc-body"><div class="pc-tag">Rucking</div><div class="pc-tag">Functional circuits</div><div class="pc-tag">Advanced</div></div></div>
+      </div>
+    </div>
+    <div class="ob-cta-wrap"><button class="btn-primary" onclick="launch()">Build My Groundwork</button></div>
+    <div style="height:40px"></div>
   </div>
-  <div style="font-size:12px;color:#505048;letter-spacing:3px;margin-top:8px;">PERFORMANCE PLATFORM</div>
-  <div style="margin-top:40px;font-size:14px;color:#8A8880;">App loading — exercises.js required</div>
-</div>
+  <!-- MAIN APP -->
+  <div class="screens">
+    <!-- HOME -->
+    <div class="screen active" id="s-home">
+      <div class="home-header"><div class="home-logo">Ground<span>work</span></div><div class="avatar">JS</div></div>
+      <div class="hero-card">
+        <div class="hero-greeting">Good Morning, Superintendent</div>
+        <div class="hero-q">How much time<br>do you have?</div>
+        <div class="hero-sub">We'll build your entire day around your answer.</div>
+        <div class="time-grid">
+          <div class="time-chip" onclick="selTime(this)"><div class="time-chip-val">15 MIN</div></div>
+          <div class="time-chip on" onclick="selTime(this)"><div class="time-chip-val">30 MIN</div></div>
+          <div class="time-chip" onclick="selTime(this)"><div class="time-chip-val">45 MIN</div></div>
+          <div class="time-chip" onclick="selTime(this)"><div class="time-chip-val">1 HOUR</div></div>
+        </div>
+      </div>
+      <div class="gap-md"></div>
+      <div class="stat-row">
+        <div class="stat-pill c-brand"><div class="stat-val">14</div><div class="stat-lbl">Day Streak</div></div>
+        <div class="stat-pill c-green"><div class="stat-val">-3lb</div><div class="stat-lbl">Lost</div></div>
+        <div class="stat-pill c-gold"><div class="stat-val">8</div><div class="stat-lbl">Workouts</div></div>
+        <div class="stat-pill c-blue"><div class="stat-val">+22%</div><div class="stat-lbl">Energy</div></div>
+      </div>
+      <div class="sect-head"><div class="sect-title">Your Program</div><div class="sect-link" onclick="nav('programs')">View All</div></div>
+      <div class="prog-card">
+        <div class="prog-phase">Phase 1 — Activate</div>
+        <div class="prog-row"><div><div class="prog-name">16-Week Foundation</div><div class="prog-sub">Building the base. Every rep counts.</div></div><div class="prog-wk"><div class="prog-wk-num">3</div><div class="prog-wk-lbl">of 16 wks</div></div></div>
+        <div class="prog-bar-track"><div class="prog-bar-fill" style="width:18%"></div></div>
+        <div class="prog-meta"><span>Week 3 of 16</span><span>18% complete</span></div>
+      </div>
+      <div class="sect-head"><div class="sect-title">Today's Blueprint</div></div>
+      <div class="blueprint-grid">
+        <div class="bp-tile w" onclick="nav('programs')"><div class="bp-tag">Train</div><div class="bp-val">Upper Body</div><div class="bp-sub">30 min · No gym</div></div>
+        <div class="bp-tile n" onclick="nav('fuel')"><div class="bp-tag">Fuel</div><div class="bp-val">2,400 cal</div><div class="bp-sub">High protein</div></div>
+        <div class="bp-tile m" onclick="nav('mind')"><div class="bp-tag">Mind</div><div class="bp-val">5 min Reset</div><div class="bp-sub">Stress relief</div></div>
+        <div class="bp-tile t" onclick="openTool('timeblock')"><div class="bp-tag">Time</div><div class="bp-val">Day Mapped</div><div class="bp-sub">6am — 6pm</div></div>
+      </div>
+      <div class="sect-head"><div class="sect-title">Daily Fuel</div></div>
+      <div class="quote-card"><div class="quote-eyebrow">Mindset — Week 3, Day 3</div><div class="quote-text">"Working beats you down. Working out builds you up. One of those is a choice."</div><div class="quote-attr">— Groundwork</div></div>
+      <div class="sect-head"><div class="sect-title">Today's Workout</div><div class="sect-link">W3 · D3</div></div>
+      <div class="workout-card">
+        <div class="wc-head"><div><div class="wc-badge">Week 3 · Functional</div><div class="wc-title">Upper Body Grind</div><div class="wc-meta">No equipment · Burns ~280 cal</div></div><div><div class="wc-time-num">30</div><div class="wc-time-lbl">minutes</div></div></div>
+        <div class="ex-list">
+          <div class="ex-row"><div class="ex-num">01</div><div class="ex-info"><div class="ex-name">Push-Up to T-Rotation</div><div class="ex-muscle">Chest · Shoulders · Obliques</div></div><div class="ex-sets">4×12</div></div>
+          <div class="ex-row"><div class="ex-num">02</div><div class="ex-info"><div class="ex-name">Pike Press</div><div class="ex-muscle">Shoulders · Triceps</div></div><div class="ex-sets">3×12</div></div>
+          <div class="ex-row"><div class="ex-num">03</div><div class="ex-info"><div class="ex-name">Dips (chair/bench)</div><div class="ex-muscle">Triceps · Chest</div></div><div class="ex-sets">3×10</div></div>
+          <div class="ex-row"><div class="ex-num">04</div><div class="ex-info"><div class="ex-name">Plank to Shoulder Tap</div><div class="ex-muscle">Core · Stability</div></div><div class="ex-sets">3×45s</div></div>
+        </div>
+        <div class="wc-btn"><button class="btn-primary">Start Workout</button></div>
+      </div>
+      <div style="height:20px"></div>
+    </div>
+    <!-- PROGRAMS -->
+    <div class="screen" id="s-programs">
+      <div class="scr-head"><div class="scr-title">Programs</div><div class="pill">Week 3</div></div>
+      <div class="prog-list">
+        <div class="pl-item active-prog" onclick="openOverlay('ov-weeks')">
+          <div class="pl-top"><div><div class="pl-badge cur">Your Current Program</div><div class="pl-name">16-Week Foundation</div><div class="pl-desc">The full transformation. 4 phases. Built to change everything permanently.</div></div><div><div class="pl-dur" style="color:var(--brand)">16<span>weeks</span></div></div></div>
+          <div class="pl-tags"><div class="pl-tag hi">Phase 1: Activate</div><div class="pl-tag">Phase 2: Build</div><div class="pl-tag">Phase 3: Push</div><div class="pl-tag">Phase 4: Peak</div></div>
+          <div class="pl-stats"><div class="pl-stat"><div class="pl-stat-n">64</div><div class="pl-stat-l">Workouts</div></div><div class="pl-stat"><div class="pl-stat-n">30–45</div><div class="pl-stat-l">Min/Day</div></div><div class="pl-stat"><div class="pl-stat-n">Wk 3</div><div class="pl-stat-l">You're Here</div></div></div>
+        </div>
+        <div class="pl-item">
+          <div class="pl-top"><div><div class="pl-badge b8">8-Week Kickstart</div><div class="pl-name">8-Week Kickstart</div><div class="pl-desc">Prove it to yourself. Fast results before going all in.</div></div><div><div class="pl-dur" style="color:var(--gold)">8<span>weeks</span></div></div></div>
+          <div class="pl-tags"><div class="pl-tag">Wake Up (1–4)</div><div class="pl-tag">Lock In (5–8)</div><div class="pl-tag">30 min/day</div></div>
+          <div class="pl-stats"><div class="pl-stat"><div class="pl-stat-n">32</div><div class="pl-stat-l">Workouts</div></div><div class="pl-stat"><div class="pl-stat-n">30</div><div class="pl-stat-l">Min/Day</div></div><div class="pl-stat"><div class="pl-stat-n">Any</div><div class="pl-stat-l">Level</div></div></div>
+        </div>
+        <div class="pl-item">
+          <div class="pl-top"><div><div class="pl-badge bdaily">Daily Blueprint</div><div class="pl-name">Daily Blueprint</div><div class="pl-desc">No program. Tell us your time each morning. We build your day.</div></div><div><div class="pl-dur" style="color:var(--blue);font-size:20px;padding-top:8px">Daily<span>ongoing</span></div></div></div>
+          <div class="pl-tags"><div class="pl-tag">15–60 min</div><div class="pl-tag">Adapts daily</div><div class="pl-tag">No commitment</div></div>
+          <div class="pl-stats"><div class="pl-stat"><div class="pl-stat-n">Any</div><div class="pl-stat-l">Level</div></div><div class="pl-stat"><div class="pl-stat-n">Flex</div><div class="pl-stat-l">Schedule</div></div><div class="pl-stat"><div class="pl-stat-n">Daily</div><div class="pl-stat-l">Generated</div></div></div>
+        </div>
+        <div class="pl-item">
+          <div class="pl-top"><div><div class="pl-badge belite">Military Functional</div><div class="pl-name">Military Functional</div><div class="pl-desc">TACP-inspired. Hybrid training. For guys who want to operate at a different level.</div></div><div><div class="pl-dur" style="color:#A78BFA">12<span>weeks</span></div></div></div>
+          <div class="pl-tags"><div class="pl-tag">Rucking</div><div class="pl-tag">Functional circuits</div><div class="pl-tag">Mental toughness</div><div class="pl-tag">Advanced</div></div>
+          <div class="pl-stats"><div class="pl-stat"><div class="pl-stat-n">48</div><div class="pl-stat-l">Workouts</div></div><div class="pl-stat"><div class="pl-stat-n">45–60</div><div class="pl-stat-l">Min/Day</div></div><div class="pl-stat"><div class="pl-stat-n">Adv.</div><div class="pl-stat-l">Level</div></div></div>
+        </div>
+      </div>
+      <div style="height:20px"></div>
+    </div>
+    <!-- FUEL -->
+    <div class="screen" id="s-fuel">
+      <div class="scr-head"><div class="scr-title">Fuel</div><div class="pill green">+ Log</div></div>
+      <div class="fuel-summary">
+        <div class="fuel-top"><div><div class="fuel-title">Today's Nutrition</div><div class="fuel-date">Monday · March 10 · Week 3</div></div>
+          <div class="ring-wrap"><svg class="ring-svg" width="72" height="72" viewBox="0 0 72 72"><circle fill="none" stroke="var(--s4)" cx="36" cy="36" r="28" stroke-width="6"/><circle fill="none" stroke="var(--green)" cx="36" cy="36" r="28" stroke-width="6" stroke-linecap="round" stroke-dasharray="175.9" stroke-dashoffset="61.6"/></svg><div class="ring-label"><span class="ring-num">65%</span><span class="ring-unit">goal</span></div></div>
+        </div>
+        <div class="macro-row"><div class="macro-pill p"><div class="macro-n">142g</div><div class="macro-l">Protein</div></div><div class="macro-pill c"><div class="macro-n">180g</div><div class="macro-l">Carbs</div></div><div class="macro-pill f"><div class="macro-n">58g</div><div class="macro-l">Fat</div></div></div>
+      </div>
+      <div class="sect-head"><div class="sect-title">Meals Today</div><div class="sect-link">History</div></div>
+      <div class="meal-list">
+        <div class="meal-row"><div class="meal-left"><div class="meal-icon">AM</div><div><div class="meal-name">Breakfast</div><div class="meal-detail">6:30 AM · 4 eggs, toast, coffee</div></div></div><div class="meal-cal">480</div></div>
+        <div class="meal-row"><div class="meal-left"><div class="meal-icon">PM</div><div><div class="meal-name">Lunch</div><div class="meal-detail">12:15 PM · Chick-fil-A grilled</div></div></div><div class="meal-cal">620</div></div>
+        <div class="meal-row"><div class="meal-left"><div class="meal-icon">SN</div><div><div class="meal-name">Snack</div><div class="meal-detail">3:00 PM · Protein bar</div></div></div><div class="meal-cal">240</div></div>
+        <div class="meal-row empty"><div class="meal-left"><div class="meal-icon" style="color:var(--t3)">+</div><div><div class="meal-name">Dinner</div><div class="meal-detail">Not logged yet</div></div></div><div class="meal-cal" style="color:var(--t3);font-size:14px">Log</div></div>
+      </div>
+      <div class="sect-head"><div class="sect-title">Eating Out Guide</div></div>
+      <div class="guide-card">
+        <div class="guide-head"><div><div class="guide-head-title">Jobsite-Approved</div><div class="guide-head-sub">Real food, real places, real macros</div></div><div class="sect-link">Full List</div></div>
+        <div class="guide-rows">
+          <div class="guide-row"><div><div class="guide-place">Chick-fil-A</div><div class="guide-order">Grilled nuggets + side salad</div></div><div class="guide-cal">380 cal</div></div>
+          <div class="guide-row"><div><div class="guide-place">Whataburger</div><div class="guide-order">Grilled chicken, no bun</div></div><div class="guide-cal">310 cal</div></div>
+          <div class="guide-row"><div><div class="guide-place">Chipotle</div><div class="guide-order">Bowl, double protein, no rice</div></div><div class="guide-cal">520 cal</div></div>
+          <div class="guide-row"><div><div class="guide-place">McDonald's</div><div class="guide-order">Egg McMuffin, no hash brown</div></div><div class="guide-cal">300 cal</div></div>
+          <div class="guide-row"><div><div class="guide-place">Subway</div><div class="guide-order">Rotisserie chicken, double protein</div></div><div class="guide-cal">440 cal</div></div>
+        </div>
+      </div>
+      <div class="sect-head"><div class="sect-title">Supplements</div></div>
+      <div class="supp-card"><div><div class="supp-eyebrow">Partner</div><div class="supp-name">5 Star Nutrition</div><div class="supp-detail">20% off for Groundwork members</div></div><button class="supp-btn">Shop</button></div>
+      <div style="height:20px"></div>
+    </div>
+    <!-- MIND -->
+    <div class="screen" id="s-mind">
+      <div class="scr-head"><div class="scr-title">Mind</div><div class="pill blue">Day 14</div></div>
+      <div class="checkin-card">
+        <div class="checkin-title">Daily Check-In</div>
+        <div class="checkin-sub">No judgment. Just honesty with yourself.</div>
+        <div class="checkin-q">How are you doing today — really?</div>
+        <div class="mood-grid">
+          <div class="mood-chip" onclick="selMood(this)"><span class="mood-word">High</span><div class="mood-bar"></div></div>
+          <div class="mood-chip" onclick="selMood(this)"><span class="mood-word">Low</span><div class="mood-bar"></div></div>
+          <div class="mood-chip on" onclick="selMood(this)"><span class="mood-word">Mid</span><div class="mood-bar"></div></div>
+          <div class="mood-chip" onclick="selMood(this)"><span class="mood-word">Good</span><div class="mood-bar"></div></div>
+          <div class="mood-chip" onclick="selMood(this)"><span class="mood-word">On</span><div class="mood-bar"></div></div>
+        </div>
+      </div>
+      <div class="sect-head"><div class="sect-title">Tools</div></div>
+      <div class="tool-list">
+        <div class="tool-row" onclick="openTool('stress')"><div class="tool-left"><div class="tool-icon stress"><span class="tool-icon-lbl">SR</span></div><div><div class="tool-name">Stress Reset</div><div class="tool-desc">After a hard day on the site</div></div></div><div class="tool-dur">5 min ›</div></div>
+        <div class="tool-row" onclick="openTool('breath')"><div class="tool-left"><div class="tool-icon breath"><span class="tool-icon-lbl">BB</span></div><div><div class="tool-name">Box Breathing</div><div class="tool-desc">Combat-proven. Works anywhere.</div></div></div><div class="tool-dur">4 min ›</div></div>
+        <div class="tool-row" onclick="openTool('sleep')"><div class="tool-left"><div class="tool-icon sleep"><span class="tool-icon-lbl">SP</span></div><div><div class="tool-name">Sleep Protocol</div><div class="tool-desc">Stop thinking about tomorrow's RFIs</div></div></div><div class="tool-dur">10 min ›</div></div>
+        <div class="tool-row" onclick="openTool('timeblock')"><div class="tool-left"><div class="tool-icon time"><span class="tool-icon-lbl">TB</span></div><div><div class="tool-name">Time Blocking</div><div class="tool-desc">Find the time you didn't know you had</div></div></div><div class="tool-dur">Plan ›</div></div>
+      </div>
+      <div class="sect-head"><div class="sect-title">Professional Support</div></div>
+      <div class="pro-card"><div class="pro-eyebrow">Root Cause — Not Band-Aids</div><div class="pro-title">Find a Pro Who Gets It</div><div class="pro-body">Connect with mental health professionals who understand construction culture. No stigma. No judgment. Fix the root cause before it becomes a crisis.</div><button class="btn-blue">Find a Professional</button></div>
+      <div class="sect-head"><div class="sect-title">If You're Struggling</div></div>
+      <div class="crisis-card"><div class="crisis-top"><div class="crisis-dot"></div><div class="crisis-title">You Are Not Alone</div></div><div class="crisis-body">Construction has one of the highest suicide rates of any industry. If you're in crisis — or someone on your crew is — reach out right now. It takes more strength to ask for help than to suffer in silence.</div><button class="btn-danger">Crisis Lifeline — Call 988</button></div>
+      <div style="height:20px"></div>
+    </div>
+    <!-- CREW -->
+    <div class="screen" id="s-crew">
+      <div class="scr-head"><div class="scr-title">Crew</div><div class="pill">+ Invite</div></div>
+      <div class="crew-top"><div><div class="crew-top-title">Your Crew</div><div class="crew-top-sub">Construction management. Built different.</div></div><div><div class="crew-num">847</div><div class="crew-num-l">Members</div></div></div>
+      <div class="sect-head"><div class="sect-title">Active Challenge</div></div>
+      <div class="challenge-card"><div class="ch-eyebrow">16-Week Foundation Challenge</div><div class="ch-title">30-Day Crew Streak</div><div class="ch-desc">Complete a workout every day for 30 days. The jobsite will still be there. So will you — but better.</div><div class="ch-track"><div class="ch-fill"></div></div><div class="ch-meta"><span>Day 19 of 30</span><span>523 members active</span></div></div>
+      <div class="sect-head"><div class="sect-title">Leaderboard</div><div class="sect-link">Supers & PMs</div></div>
+      <div class="lb-list">
+        <div class="lb-row gold"><div class="lb-rank">01</div><div class="lb-av">MR</div><div class="lb-info"><div class="lb-name">Mike R.</div><div class="lb-role">General Superintendent · Dallas, TX</div></div><div class="lb-score">2,840</div></div>
+        <div class="lb-row you"><div class="lb-rank">02</div><div class="lb-av">JS</div><div class="lb-info"><div class="lb-name">You</div><div class="lb-role">Superintendent · Rogers O'Brien</div></div><div class="lb-score">2,610</div></div>
+        <div class="lb-row"><div class="lb-rank">03</div><div class="lb-av">DK</div><div class="lb-info"><div class="lb-name">Dan K.</div><div class="lb-role">Project Manager · Austin, TX</div></div><div class="lb-score">2,490</div></div>
+        <div class="lb-row"><div class="lb-rank">04</div><div class="lb-av">TW</div><div class="lb-info"><div class="lb-name">Tony W.</div><div class="lb-role">Project Executive · Houston, TX</div></div><div class="lb-score">2,210</div></div>
+        <div class="lb-row"><div class="lb-rank">05</div><div class="lb-av">JL</div><div class="lb-info"><div class="lb-name">Jason L.</div><div class="lb-role">VP Construction · Denver, CO</div></div><div class="lb-score">1,980</div></div>
+      </div>
+      <div class="sect-head"><div class="sect-title">Crew Feed</div><div class="sect-link">Following</div></div>
+      <div class="feed-list">
+        <div class="feed-item"><div class="feed-top"><div class="feed-av">MR</div><div><div class="feed-name">Mike R.</div><div class="feed-role">General Superintendent</div></div><div class="feed-time">2h ago</div></div><div class="feed-body">Week 3 done. Got up at 4:45 before the crew showed up. Nobody said it was easy. Nobody said you had to wait until it was.</div><div class="feed-actions"><div class="feed-action fire" onclick="fireUp(this)">47 Fired Up</div><div class="feed-action">12 Comments</div></div></div>
+        <div class="feed-item"><div class="feed-top"><div class="feed-av">DK</div><div><div class="feed-name">Dan K.</div><div class="feed-role">Project Manager</div></div><div class="feed-time">5h ago</div></div><div class="feed-body">Down 11 lbs since starting. Slept better last night than I have in years. I thought I didn't have time. Turns out I just didn't have a plan.</div><div class="feed-actions"><div class="feed-action fire" onclick="fireUp(this)">89 Fired Up</div><div class="feed-action">34 Comments</div></div></div>
+        <div class="feed-item"><div class="feed-top"><div class="feed-av">RO</div><div><div class="feed-name">Rogers O'Brien</div><div class="feed-role">Official Partner</div></div><div class="feed-time">1d ago</div></div><div class="feed-body">Proud to support our team through Groundwork. The industry is changing. Take care of each other out there.</div><div class="feed-actions"><div class="feed-action fire" onclick="fireUp(this)">214 Fired Up</div><div class="feed-action">67 Comments</div></div></div>
+      </div>
+      <div style="height:20px"></div>
+    </div>
+    <!-- LIBRARY -->
+    <div class="screen" id="s-library">
+      <div class="scr-head"><div class="scr-title">Library</div><div class="pill" id="lib-total-badge">47 Exercises</div></div>
+      <div class="lib-search-wrap"><div class="lib-search"><span class="lib-search-icon">&#8981;</span><input type="text" id="libSearch" placeholder="Search exercises..." oninput="filterLib()" autocomplete="off" autocorrect="off" spellcheck="false"></div></div>
+      <div class="lib-cats" id="libCats"></div>
+      <div class="lib-count" id="libCount"></div>
+      <div class="lib-grid" id="libGrid"></div>
+      <div class="builder-bar" id="builderBar">
+        <div class="builder-bar-info"><div class="builder-bar-count" id="builderCount">0 exercises</div><div class="builder-bar-sub">Tap "Build" to preview your workout</div></div>
+        <button class="builder-bar-clear" onclick="clearWorkout()">Clear</button>
+        <button class="builder-bar-btn" onclick="openOverlay('ov-workout-preview')">Build ›</button>
+      </div>
+      <div style="height:80px"></div>
+    </div>
+  </div><!-- end .screens -->
+  <!-- OVERLAYS -->
+  <!-- 16-Week breakdown -->
+  <div class="overlay" id="ov-weeks">
+    <div class="ov-head"><div class="ov-back" onclick="closeOverlay('ov-weeks')">← Programs</div><div class="ov-title">16-Week Foundation</div><div class="ov-sub">4 phases · 64 workouts · Full transformation</div></div>
+    <div class="phase-head"><div class="phase-dot" style="background:var(--brand)"></div><div class="phase-name" style="color:var(--brand)">Phase 1: Activate — Weeks 1–4</div></div>
+    <div class="wk-list">
+      <div class="wk-row done"><div class="wk-n">W01</div><div class="wk-info"><div class="wk-name">Foundation Week</div><div class="wk-focus">Movement patterns · 15–20 min · Build the habit</div></div><div class="wk-status">Done</div></div>
+      <div class="wk-row done"><div class="wk-n">W02</div><div class="wk-info"><div class="wk-name">Build Consistency</div><div class="wk-focus">Add volume · Nutrition starts · 20–25 min</div></div><div class="wk-status">Done</div></div>
+      <div class="wk-row now"><div class="wk-n">W03</div><div class="wk-info"><div class="wk-name">Find Your Rhythm</div><div class="wk-focus">Functional circuits · Time blocking · 30 min</div></div><div class="wk-status">Now</div></div>
+      <div class="wk-row"><div class="wk-n">W04</div><div class="wk-info"><div class="wk-name">Phase 1 Assessment</div><div class="wk-focus">Progress check · Adjust the plan</div></div><div class="wk-status">Next</div></div>
+    </div>
+    <div class="phase-head"><div class="phase-dot" style="background:var(--gold)"></div><div class="phase-name" style="color:var(--gold)">Phase 2: Build — Weeks 5–8</div></div>
+    <div class="wk-list">
+      <div class="wk-row"><div class="wk-n">W05</div><div class="wk-info"><div class="wk-name">Strength Foundation</div><div class="wk-focus">Add resistance · Meal prep system · 30–35 min</div></div><div class="wk-status">Locked</div></div>
+      <div class="wk-row"><div class="wk-n">W06</div><div class="wk-info"><div class="wk-name">Push the Weight</div><div class="wk-focus">Progressive overload · Protein targets · 35 min</div></div><div class="wk-status">Locked</div></div>
+      <div class="wk-row"><div class="wk-n">W07</div><div class="wk-info"><div class="wk-name">Mental Edge</div><div class="wk-focus">Stress protocol · Sleep habits · 35 min</div></div><div class="wk-status">Locked</div></div>
+      <div class="wk-row"><div class="wk-n">W08</div><div class="wk-info"><div class="wk-name">Halfway Point</div><div class="wk-focus">Major assessment · Celebrate progress</div></div><div class="wk-status">Locked</div></div>
+    </div>
+    <div class="phase-head"><div class="phase-dot" style="background:var(--green)"></div><div class="phase-name" style="color:var(--green)">Phase 3: Push — Weeks 9–12</div></div>
+    <div class="wk-list">
+      <div class="wk-row"><div class="wk-n">W09</div><div class="wk-info"><div class="wk-name">Intensity Up</div><div class="wk-focus">Circuit training · HIIT elements · 35–40 min</div></div><div class="wk-status">Locked</div></div>
+      <div class="wk-row"><div class="wk-n">W10</div><div class="wk-info"><div class="wk-name">Hybrid Functional</div><div class="wk-focus">Military-style · Rucking option · 40 min</div></div><div class="wk-status">Locked</div></div>
+      <div class="wk-row"><div class="wk-n">W11</div><div class="wk-info"><div class="wk-name">Body Composition</div><div class="wk-focus">Nutrition dial-in · Muscle gain focus · 40 min</div></div><div class="wk-status">Locked</div></div>
+      <div class="wk-row"><div class="wk-n">W12</div><div class="wk-info"><div class="wk-name">3/4 Assessment</div><div class="wk-focus">Progress photos · Reset goals</div></div><div class="wk-status">Locked</div></div>
+    </div>
+    <div class="phase-head"><div class="phase-dot" style="background:var(--blue)"></div><div class="phase-name" style="color:var(--blue)">Phase 4: Peak — Weeks 13–16</div></div>
+    <div class="wk-list">
+      <div class="wk-row"><div class="wk-n">W13</div><div class="wk-info"><div class="wk-name">Elite Mode</div><div class="wk-focus">Advanced circuits · Max effort · 40–45 min</div></div><div class="wk-status">Locked</div></div>
+      <div class="wk-row"><div class="wk-n">W14</div><div class="wk-info"><div class="wk-name">Mind and Body</div><div class="wk-focus">Mental performance · Full wellness · 45 min</div></div><div class="wk-status">Locked</div></div>
+      <div class="wk-row"><div class="wk-n">W15</div><div class="wk-info"><div class="wk-name">Final Push</div><div class="wk-focus">Everything on the line · Legacy week · 45 min</div></div><div class="wk-status">Locked</div></div>
+      <div class="wk-row" style="border-color:rgba(91,127,166,0.35)"><div class="wk-n" style="color:var(--blue)">W16</div><div class="wk-info"><div class="wk-name">Transformation Complete</div><div class="wk-focus">Final assessment · New you · What comes next</div></div><div class="wk-status" style="color:var(--blue)">Finish</div></div>
+    </div>
+    <div style="padding:20px var(--pad) 0"><button class="btn-primary" onclick="closeOverlay('ov-weeks')">Continue Week 3</button></div>
+    <div style="height:30px"></div>
+  </div>
+  <!-- Stress Reset -->
+  <div class="overlay" id="ov-stress">
+    <div class="to-head" style="border-bottom-color:rgba(91,127,166,0.3)"><div class="to-back" onclick="closeOverlay('ov-stress')">← Mind</div><div class="to-badge" style="color:var(--blue)">SR · 5 MIN</div></div>
+    <div class="to-body">
+      <div class="to-eyebrow" style="color:var(--blue)">Stress Reset</div>
+      <div class="to-title">Decompress.<br>Right Now.</div>
+      <div class="to-intro">The site threw everything at you today. Before it follows you home, do this. Five minutes. That's all it takes to reset.</div>
+      <div class="to-steps">
+        <div class="to-step"><div class="to-step-num" style="border-color:var(--blue);color:var(--blue)">01</div><div><div class="to-step-title">Find a quiet spot</div><div class="to-step-text">Truck cab. Parking lot. Doesn't matter. Sit down, feet on the floor, arms uncrossed. You're off the clock.</div></div></div>
+        <div class="to-step"><div class="to-step-num" style="border-color:var(--blue);color:var(--blue)">02</div><div><div class="to-step-title">Name what's heavy</div><div class="to-step-text">What's actually bothering you? The schedule slip? The sub who didn't show? Say it out loud or think it clearly. You can't solve what you won't face.</div></div></div>
+        <div class="to-step"><div class="to-step-num" style="border-color:var(--blue);color:var(--blue)">03</div><div><div class="to-step-title">Separate it from you</div><div class="to-step-text">That problem is not you. It happened on the job. It stays on the job. Say it: "That's the job. This is me."</div></div></div>
+        <div class="to-step"><div class="to-step-num" style="border-color:var(--blue);color:var(--blue)">04</div><div><div class="to-step-title">Three slow breaths</div><div class="to-step-text">In through the nose for 4 counts. Hold for 2. Out through the mouth for 6. Three times. This isn't soft — it's science.</div></div></div>
+        <div class="to-step"><div class="to-step-num" style="border-color:var(--blue);color:var(--blue)">05</div><div><div class="to-step-title">One thing you control right now</div><div class="to-step-text">Pick one thing you can actually do in the next hour. Not fix the whole schedule — one thing. That's your mission when you leave this seat.</div></div></div>
+      </div>
+      <div class="to-quote" style="border-color:rgba(91,127,166,0.3)"><div class="to-quote-text">"The man who trains his mind gives himself something the job can't take."</div><div class="to-quote-attr">— Groundwork</div></div>
+      <button class="btn-blue" onclick="closeOverlay('ov-stress')">Done — I'm Reset</button>
+    </div>
+  </div>
+  <!-- Box Breathing -->
+  <div class="overlay" id="ov-breath">
+    <div class="to-head" style="border-bottom-color:rgba(107,143,94,0.3)"><div class="to-back" onclick="closeOverlay('ov-breath');stopBB()">← Mind</div><div class="to-badge" style="color:var(--green)">BB · 4 MIN</div></div>
+    <div class="to-body">
+      <div class="to-eyebrow" style="color:var(--green)">Box Breathing</div>
+      <div class="to-title">Combat-Proven.<br>Works Anywhere.</div>
+      <div class="to-intro">Used by special operations forces to stay calm under pressure. Same technique. Same results. You don't need a deployment to use it.</div>
+      <div class="bb-wrap">
+        <div class="bb-box-outer"><div class="bb-box-inner" id="bbBox"><div class="bb-phase" id="bbPhase">Ready</div><div class="bb-count" id="bbCount">—</div></div></div>
+        <div class="bb-ctrl"><button class="bb-start" id="bbBtn" onclick="toggleBB()">Start Breathing</button><div class="bb-rounds-lbl" id="bbRounds">4 rounds · ~4 minutes</div></div>
+      </div>
+      <div class="bb-pattern">
+        <div class="bb-pattern-title">The Pattern</div>
+        <div class="bb-pattern-row">
+          <div class="bb-p-step" style="border-top-color:var(--green)"><div class="bb-p-n">4s</div><div class="bb-p-l">Inhale</div></div>
+          <div class="bb-p-step" style="border-top-color:var(--gold)"><div class="bb-p-n">4s</div><div class="bb-p-l">Hold</div></div>
+          <div class="bb-p-step" style="border-top-color:var(--blue)"><div class="bb-p-n">4s</div><div class="bb-p-l">Exhale</div></div>
+          <div class="bb-p-step" style="border-top-color:var(--t3)"><div class="bb-p-n">4s</div><div class="bb-p-l">Hold</div></div>
+        </div>
+      </div>
+      <div class="to-quote" style="border-color:rgba(107,143,94,0.3)"><div class="to-quote-text">"When you control your breath, you control your response. And when you control your response, nothing owns you."</div><div class="to-quote-attr">— Groundwork</div></div>
+    </div>
+  </div>
+  <!-- Sleep Protocol -->
+  <div class="overlay" id="ov-sleep">
+    <div class="to-head" style="border-bottom-color:rgba(124,92,191,0.25)"><div class="to-back" onclick="closeOverlay('ov-sleep')">← Mind</div><div class="to-badge" style="color:#A78BFA">SP · 10 MIN</div></div>
+    <div class="to-body">
+      <div class="to-eyebrow" style="color:#A78BFA">Sleep Protocol</div>
+      <div class="to-title">Stop Staring<br>at the Ceiling.</div>
+      <div class="to-intro">Your brain runs at full tilt all day managing a complex operation. It doesn't know how to turn off on its own. This teaches it how. Ten minutes before bed.</div>
+      <div class="to-steps">
+        <div class="to-step"><div class="to-step-num" style="border-color:#A78BFA;color:#A78BFA">01</div><div><div class="to-step-title">Hard cutoff — 30 min before bed</div><div class="to-step-text">No phone. No email. No "one more look at the schedule." Whatever didn't get solved today will still be there tomorrow. Your brain needs a hard stop or it never stops.</div></div></div>
+        <div class="to-step"><div class="to-step-num" style="border-color:#A78BFA;color:#A78BFA">02</div><div><div class="to-step-title">Brain dump — write it out</div><div class="to-step-text">Take 3 minutes and write down every open loop in your head. Every RFI, every call you need to make. Get it out of your skull and onto paper. Your brain will stop trying to hold it all.</div></div></div>
+        <div class="to-step"><div class="to-step-num" style="border-color:#A78BFA;color:#A78BFA">03</div><div><div class="to-step-title">Cool the room, kill the light</div><div class="to-step-text">65–68°F is optimal. Even if you can't control the temp — get the lights off. Light is the #1 signal that keeps your brain awake.</div></div></div>
+        <div class="to-step"><div class="to-step-num" style="border-color:#A78BFA;color:#A78BFA">04</div><div><div class="to-step-title">4-7-8 wind-down breath</div><div class="to-step-text">Inhale for 4 counts. Hold for 7. Exhale slowly for 8. Repeat 4 times. This activates your parasympathetic nervous system. It works every time.</div></div></div>
+        <div class="to-step"><div class="to-step-num" style="border-color:#A78BFA;color:#A78BFA">05</div><div><div class="to-step-title">One win from today</div><div class="to-step-text">Name one thing that went right today. Doesn't matter how small. Train your brain to end each day on something real. That's not soft. That's how warriors rest.</div></div></div>
+      </div>
+      <div class="to-tip" style="border-color:rgba(124,92,191,0.2);background:rgba(124,92,191,0.04)"><div class="to-tip-title" style="color:#A78BFA">Why This Matters</div><div class="to-tip-body">One bad night reduces decision-making by up to 40%. You're running a multi-million dollar operation. Sleep is job performance.</div></div>
+      <button style="background:#7C5CBF;color:var(--t1)" class="btn-primary" onclick="closeOverlay('ov-sleep')">Protocol Saved — Good Night</button>
+    </div>
+  </div>
+  <!-- Time Blocking -->
+  <div class="overlay" id="ov-timeblock">
+    <div class="to-head" style="border-bottom-color:rgba(200,168,75,0.3)"><div class="to-back" onclick="closeOverlay('ov-timeblock')">← Mind</div><div class="to-badge" style="color:var(--brand)">TB · DAILY</div></div>
+    <div class="to-body">
+      <div class="to-eyebrow" style="color:var(--brand)">Time Blocking</div>
+      <div class="to-title">You Have More<br>Time Than You Think.</div>
+      <div class="to-intro">Most guys say they don't have time to work out. What they actually don't have is a plan. Tap the gold windows to claim them.</div>
+      <div class="tb-label">Today's Schedule — Tap to Claim Your Windows</div>
+      <div class="tb-blocks">
+        <div class="tb-row"><div class="tb-time">4:30 AM</div><div class="tb-block open" onclick="this.classList.toggle('sel')"><div class="tb-block-name">Wake Window</div><div class="tb-block-sub">Before the site · Before everything · Your time</div><div class="tb-block-win">✓ 30–45 min available</div></div></div>
+        <div class="tb-row"><div class="tb-time">6:00 AM</div><div class="tb-block used"><div class="tb-block-name">Jobsite Start</div><div class="tb-block-sub">On the clock</div></div></div>
+        <div class="tb-row"><div class="tb-time">12:00 PM</div><div class="tb-block open" onclick="this.classList.toggle('sel')"><div class="tb-block-name">Lunch Break</div><div class="tb-block-sub">Eat in 15 min · 15 min left over</div><div class="tb-block-win">✓ 15 min available</div></div></div>
+        <div class="tb-row"><div class="tb-time">3:30 PM</div><div class="tb-block open" onclick="this.classList.toggle('sel')"><div class="tb-block-name">End-of-Day Buffer</div><div class="tb-block-sub">Punch list done · Before drive home</div><div class="tb-block-win">✓ 20 min available</div></div></div>
+        <div class="tb-row"><div class="tb-time">5:30 PM</div><div class="tb-block used"><div class="tb-block-name">Family Time</div><div class="tb-block-sub">Protected. Non-negotiable.</div></div></div>
+        <div class="tb-row"><div class="tb-time">8:30 PM</div><div class="tb-block open" onclick="this.classList.toggle('sel')"><div class="tb-block-name">After Kids' Bedtime</div><div class="tb-block-sub">House quiet · Last window of the day</div><div class="tb-block-win">✓ 30 min available</div></div></div>
+      </div>
+      <div class="tb-summary"><div class="tb-sum-label">Total Time Available</div><div class="tb-sum-num">1 hr 35 min</div><div class="tb-sum-sub">You said you didn't have time. The schedule says otherwise.</div></div>
+      <div class="to-tip" style="border-color:rgba(200,168,75,0.2);background:rgba(200,168,75,0.04)"><div class="to-tip-title" style="color:var(--brand)">The Rule</div><div class="to-tip-body">You don't need an hour. You need a decision. Pick one window. Protect it like a crew safety meeting. Nothing moves it.</div></div>
+      <button class="btn-primary" onclick="closeOverlay('ov-timeblock')">Time Blocked — Let's Go</button>
+    </div>
+  </div>
+  <!-- Exercise Detail Overlay -->
+  <div class="overlay" id="ov-exercise-detail">
+    <div class="to-head" id="exDetailHead"><div class="to-back" onclick="closeOverlay('ov-exercise-detail')">← Library</div><div class="to-badge" id="exDetailBadge"></div></div>
+    <div class="ex-detail-demo"><div class="ex-demo-placeholder">DEMO CUE</div><div class="ex-demo-visual"><div class="ex-demo-icon" id="exDemoIcon"></div><div class="ex-demo-cue" id="exDemoCue"></div></div></div>
+    <div class="ex-detail-meta"><div class="ex-detail-title" id="exDetailTitle"></div><div class="ex-detail-tags" id="exDetailTags"></div><div class="ex-default-sets" id="exDetailSets"></div></div>
+    <div class="ex-steps-wrap"><div class="ex-steps-title">How to do it</div><div id="exDetailSteps"></div></div>
+    <div class="ex-mods-wrap">
+      <div class="ex-steps-title">Modifications</div>
+      <div class="ex-mod-card"><div class="ex-mod-label easier">Easier</div><div class="ex-mod-text" id="exModEasier"></div></div>
+      <div class="ex-mod-card"><div class="ex-mod-label harder">Harder</div><div class="ex-mod-text" id="exModHarder"></div></div>
+      <div style="height:16px"></div>
+      <button class="btn-primary" id="exDetailAddBtn" onclick="toggleFromDetail()">+ Add to Workout</button>
+    </div>
+    <div style="height:30px"></div>
+  </div>
+  <!-- Workout Preview Overlay -->
+  <div class="overlay" id="ov-workout-preview">
+    <div class="to-head"><div class="to-back" onclick="closeOverlay('ov-workout-preview')">← Library</div><div class="to-badge" style="color:var(--brand)">YOUR WORKOUT</div></div>
+    <div style="padding:16px var(--pad) 0"><div class="to-eyebrow" style="color:var(--brand)">Workout Builder</div><div class="to-title">Custom<br>Blueprint</div><div class="to-intro">Built from your library picks. Review, reorder, then start.</div></div>
+    <div class="workout-preview" id="workoutPreviewList"></div>
+    <div style="padding:0 var(--pad) 0"><div class="to-tip" style="border-color:rgba(200,168,75,0.2);background:rgba(200,168,75,0.04);margin-bottom:14px"><div class="to-tip-title" style="color:var(--brand)">Total Volume</div><div class="to-tip-body" id="workoutPreviewMeta"></div></div><button class="btn-primary" onclick="closeOverlay('ov-workout-preview')">Start This Workout</button></div>
+    <div style="height:40px"></div>
+  </div>
+  <!-- BOTTOM NAV -->
+  <div class="bnav">
+    <div class="bni on" onclick="nav('home',this)"><div class="bni-abbr">HM</div><div class="bni-label">Home</div></div>
+    <div class="bni" onclick="nav('programs',this)"><div class="bni-abbr">TR</div><div class="bni-label">Train</div></div>
+    <div class="bni" onclick="nav('fuel',this)"><div class="bni-abbr">FL</div><div class="bni-label">Fuel</div></div>
+    <div class="bni" onclick="nav('library',this);initLib()"><div class="bni-abbr">LB</div><div class="bni-label">Library</div></div>
+    <div class="bni" onclick="nav('mind',this)"><div class="bni-abbr">MN</div><div class="bni-label">Mind</div></div>
+    <div class="bni" onclick="nav('crew',this)"><div class="bni-abbr">CW</div><div class="bni-label">Crew</div></div>
+  </div>
+</div><!-- end #app -->
+<script>
+function nav(id,el){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.bni').forEach(b=>b.classList.remove('on'));document.getElementById('s-'+id).classList.add('active');document.getElementById('s-'+id).scrollTop=0;if(el)el.classList.add('on');}
+function closeOverlay(id){document.getElementById(id).classList.remove('open');}
+function openTool(name){const id='ov-'+name;if(name==='breath')resetBB();document.getElementById(id).classList.add('open');}
+function launch(){document.getElementById('onboarding').classList.add('gone');setTimeout(()=>document.getElementById('onboarding').style.display='none',400);}
+function selTime(el){el.closest('.time-grid').querySelectorAll('.time-chip').forEach(c=>c.classList.remove('on'));el.classList.add('on');}
+function selMood(el){el.closest('.mood-grid').querySelectorAll('.mood-chip').forEach(c=>c.classList.remove('on'));el.classList.add('on');}
+function selPc(el){el.closest('.prog-choose-list').querySelectorAll('.pc-card').forEach(c=>c.classList.remove('on'));el.classList.add('on');}
+function fireUp(el){const n=parseInt(el.textContent)+1;el.textContent=n+' Fired Up';}
+const BB_PHASES=[{label:'INHALE',cls:'inhale',dur:4},{label:'HOLD',cls:'hold-in',dur:4},{label:'EXHALE',cls:'exhale',dur:4},{label:'HOLD',cls:'hold-out',dur:4}];
+let bbRunning=false,bbTimer=null,bbRound=0,bbPhaseIdx=0,bbCount=0;
+function resetBB(){stopBB();document.getElementById('bbBox').className='bb-box-inner';document.getElementById('bbPhase').textContent='Ready';document.getElementById('bbCount').textContent='—';document.getElementById('bbBtn').textContent='Start Breathing';document.getElementById('bbRounds').textContent='4 rounds · ~4 minutes';}
+function stopBB(){bbRunning=false;if(bbTimer){clearInterval(bbTimer);bbTimer=null;}}
+function toggleBB(){if(bbRunning){stopBB();resetBB();return;}bbRunning=true;bbRound=0;bbPhaseIdx=0;document.getElementById('bbBtn').textContent='Stop';runPhase();}
+function runPhase(){if(!bbRunning)return;if(bbRound>=4){stopBB();document.getElementById('bbBox').className='bb-box-inner';document.getElementById('bbPhase').textContent='COMPLETE';document.getElementById('bbCount').textContent='✓';document.getElementById('bbBtn').textContent='Again';document.getElementById('bbRounds').textContent='Great work. Feel that.';return;}const p=BB_PHASES[bbPhaseIdx];bbCount=p.dur;document.getElementById('bbBox').className='bb-box-inner '+p.cls;document.getElementById('bbPhase').textContent=p.label;document.getElementById('bbCount').textContent=bbCount;document.getElementById('bbRounds').textContent='Round '+(bbRound+1)+' of 4';bbTimer=setInterval(()=>{bbCount--;if(bbCount<=0){clearInterval(bbTimer);bbPhaseIdx++;if(bbPhaseIdx>=4){bbPhaseIdx=0;bbRound++;}setTimeout(runPhase,150);}else{document.getElementById('bbCount').textContent=bbCount;}},1000);}
+let libInited=false,activeCategory='all',workoutList=[],currentExId=null;
+function initLib(){if(libInited)return;libInited=true;renderCatFilter();renderLibGrid();}
+function renderCatFilter(){const wrap=document.getElementById('libCats');const cats=[{key:'all',label:'All',color:'#C8A84B'},{key:'bodyweight',label:'Bodyweight',color:'#C8A84B'},{key:'dumbbell',label:'Dumbbell',color:'#6B8F5E'},{key:'barbell',label:'Barbell',color:'#5B7FA6'},{key:'kettlebell',label:'Kettlebell',color:'#A78BFA'},{key:'rucking',label:'Rucking',color:'#C87B4B'},{key:'bands',label:'Bands',color:'#4BA6A6'}];wrap.innerHTML=cats.map(c=>`<div class="lib-cat ${c.key==='all'?'on':''}" style="--cat-color:${c.color}" onclick="setCat('${c.key}',this)"><div class="lib-cat-dot"></div><div class="lib-cat-lbl">${c.label}</div></div>`).join('');}
+function setCat(key,el){activeCategory=key;document.querySelectorAll('.lib-cat').forEach(c=>c.classList.remove('on'));el.classList.add('on');renderLibGrid();}
+function renderLibGrid(){const query=(document.getElementById('libSearch')?.value||'').toLowerCase().trim();let list=EXERCISES;if(activeCategory!=='all'){list=list.filter(e=>e.category===activeCategory);}if(query){list=list.filter(e=>e.name.toLowerCase().includes(query)||e.muscles.some(m=>m.toLowerCase().includes(query))||e.tags.some(t=>t.toLowerCase().includes(query)));}document.getElementById('libCount').textContent=`${list.length} exercise${list.length!==1?'s':''}${query?' matching "'+query+'"':''}`;const catColors={bodyweight:'#C8A84B',dumbbell:'#6B8F5E',barbell:'#5B7FA6',kettlebell:'#A78BFA',rucking:'#C87B4B',bands:'#4BA6A6'};const catAbbr={bodyweight:'BW',dumbbell:'DB',barbell:'BB',kettlebell:'KB',rucking:'RK',bands:'RB'};const diffColors={beginner:'#6B8F5E',intermediate:'#C8A84B',advanced:'#A63228'};document.getElementById('libGrid').innerHTML=list.map(ex=>{const color=catColors[ex.category]||'#C8A84B';const abbr=catAbbr[ex.category]||'??';const dc=diffColors[ex.difficulty]||'#C8A84B';const inWk=workoutList.includes(ex.id);return `<div class="lib-row ${inWk?'in-workout':''}" id="librow-${ex.id}" onclick="openExDetail('${ex.id}')"><div class="lib-cat-badge" style="background:${color}1A"><span class="lib-cat-abbr" style="color:${color}">${abbr}</span></div><div class="lib-info"><div class="lib-name">${ex.name}</div><div class="lib-muscles">${ex.muscles.join(' · ')}</div></div><div class="lib-right"><div class="lib-diff" style="background:${dc}20;color:${dc}">${ex.difficulty}</div><div class="lib-add-btn" onclick="event.stopPropagation();toggleWorkout('${ex.id}')">${inWk?'✓':'+'}</div></div></div>`;}).join('');}
+function filterLib(){renderLibGrid();}
+function toggleWorkout(id){const idx=workoutList.indexOf(id);if(idx===-1)workoutList.push(id);else workoutList.splice(idx,1);updateBuilderBar();const row=document.getElementById('librow-'+id);if(row){const inWk=workoutList.includes(id);row.classList.toggle('in-workout',inWk);const btn=row.querySelector('.lib-add-btn');if(btn)btn.textContent=inWk?'✓':'+';}}
+function updateBuilderBar(){const bar=document.getElementById('builderBar');const count=workoutList.length;document.getElementById('builderCount').textContent=count===1?'1 exercise':`${count} exercises`;bar.classList.toggle('visible',count>0);}
+function clearWorkout(){workoutList=[];updateBuilderBar();renderLibGrid();}
+function openExDetail(id){currentExId=id;const ex=EXERCISES.find(e=>e.id===id);if(!ex)return;const catColors={bodyweight:'#C8A84B',dumbbell:'#6B8F5E',barbell:'#5B7FA6',kettlebell:'#A78BFA',rucking:'#C87B4B',bands:'#4BA6A6'};const catLabels={bodyweight:'Bodyweight',dumbbell:'Dumbbell',barbell:'Barbell',kettlebell:'Kettlebell',rucking:'Rucking',bands:'Bands'};const catAbbr={bodyweight:'BW',dumbbell:'DB',barbell:'BB',kettlebell:'KB',rucking:'RK',bands:'RB'};const diffColors={beginner:'#6B8F5E',intermediate:'#C8A84B',advanced:'#A63228'};const color=catColors[ex.category]||'#C8A84B';const dc=diffColors[ex.difficulty]||'#C8A84B';document.getElementById('exDetailBadge').textContent=catLabels[ex.category];document.getElementById('exDetailBadge').style.color=color;document.getElementById('exDemoIcon').textContent=catAbbr[ex.category];document.getElementById('exDemoIcon').style.color=color;document.getElementById('exDemoCue').textContent='"'+ex.demo+'"';document.getElementById('exDetailTitle').textContent=ex.name;document.getElementById('exDetailTags').innerHTML=ex.muscles.map((m,i)=>`<span class="ex-detail-tag${i===0?' primary':''}" style="${i===0?'color:'+color+';border-color:'+color+'40;background:'+color+'15':''}">${m}</span>`).join('')+`<span class="ex-detail-tag" style="color:${dc};border-color:${dc}40;background:${dc}15">${ex.difficulty}</span>`;document.getElementById('exDetailSets').innerHTML=`<div class="ex-set-pill"><div class="ex-set-n">${ex.defaultSets}</div><div class="ex-set-l">Sets</div></div><div class="ex-set-pill"><div class="ex-set-n" style="font-size:16px">${ex.defaultReps}</div><div class="ex-set-l">Reps</div></div><div class="ex-set-pill"><div class="ex-set-n">${ex.defaultRest}</div><div class="ex-set-l">Rest</div></div>`;document.getElementById('exDetailSteps').innerHTML=ex.steps.map((s,i)=>`<div class="ex-step-item"><div class="ex-step-n" style="border-color:${color};color:${color}">${String(i+1).padStart(2,'0')}</div><div class="ex-step-text">${s}</div></div>`).join('');document.getElementById('exModEasier').textContent=ex.easier;document.getElementById('exModHarder').textContent=ex.harder;const inWk=workoutList.includes(id);const btn=document.getElementById('exDetailAddBtn');btn.textContent=inWk?'✓ Added to Workout':'+ Add to Workout';btn.style.background=inWk?'#2C2D29':'';btn.style.color=inWk?'#C8A84B':'';btn.style.border=inWk?'1px solid rgba(200,168,75,0.3)':'';openOverlay('ov-exercise-detail');}
+function toggleFromDetail(){if(!currentExId)return;toggleWorkout(currentExId);const inWk=workoutList.includes(currentExId);const btn=document.getElementById('exDetailAddBtn');btn.textContent=inWk?'✓ Added to Workout':'+ Add to Workout';btn.style.background=inWk?'#2C2D29':'';btn.style.color=inWk?'#C8A84B':'';btn.style.border=inWk?'1px solid rgba(200,168,75,0.3)':'';}
+function openOverlay(id){if(id==='ov-workout-preview')renderWorkoutPreview();document.getElementById(id).classList.add('open');}
+function renderWorkoutPreview(){const list=workoutList.map(id=>EXERCISES.find(e=>e.id===id)).filter(Boolean);const totalSets=list.reduce((a,e)=>a+e.defaultSets,0);const muscleSet=[...new Set(list.map(e=>e.primaryMuscle))];document.getElementById('workoutPreviewList').innerHTML=list.length===0?'<div style="padding:20px;color:var(--t3);font-size:13px;text-align:center">No exercises added yet.<br>Go back and tap + on exercises to build your workout.</div>':list.map((ex,i)=>`<div class="wp-ex-row"><div class="wp-num">${String(i+1).padStart(2,'0')}</div><div class="wp-info"><div class="wp-name">${ex.name}</div><div class="wp-muscle">${ex.primaryMuscle}</div></div><div class="wp-sets">${ex.defaultSets}×${ex.defaultReps}</div><div class="wp-remove" onclick="removeFromPreview('${ex.id}')">×</div></div>`).join('');document.getElementById('workoutPreviewMeta').textContent=`${list.length} exercise${list.length!==1?'s':''} · ${totalSets} total sets · Muscles: ${muscleSet.join(', ')||'none selected'}`;}
+function removeFromPreview(id){workoutList=workoutList.filter(i=>i!==id);updateBuilderBar();renderWorkoutPreview();const row=document.getElementById('librow-'+id);if(row){row.classList.remove('in-workout');const btn=row.querySelector('.lib-add-btn');if(btn)btn.textContent='+';}}
+if('serviceWorker'in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{});}
+</script>
 </body>
 </html>
